@@ -1,0 +1,73 @@
+
+name: Build HEZA MEDIA Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: HEZAMEDIA-Android-GitHub
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Create Android application
+        run: |
+          npx cap add android
+          npx cap sync android
+          npx capacitor-assets generate --android
+
+      - name: Build HEZA MEDIA APK
+        run: |
+          cd android
+          bash gradlew assembleDebug --no-daemon
+
+      - name: Upload HEZA MEDIA APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HEZA-MEDIA-Android-APK
+          path: HEZAMEDIA-Android-GitHub/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Configure release signing
+        if: github.event_name != 'pull_request'
+        env:
+          HEZA_KEYSTORE_BASE64: ${{ secrets.HEZA_KEYSTORE_BASE64 }}
+          HEZA_KEYSTORE_PASSWORD: ${{ secrets.HEZA_KEYSTORE_PASSWORD }}
+          HEZA_KEY_ALIAS: ${{ secrets.HEZA_KEY_ALIAS }}
+          HEZA_KEY_PASSWORD: ${{ secrets.HEZA_KEY_PASSWORD }}
+        run: python3 scripts/configure_signing.py
+
+      - name: Build release AAB
+        run: |
+          cd android
+          bash gradlew bundleRelease --no-daemon
+
+      - name: Upload release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: HEZA-MEDIA-Release-AAB
+          path: HEZAMEDIA-Android-GitHub/android/app/build/outputs/bundle/release/*.aab
