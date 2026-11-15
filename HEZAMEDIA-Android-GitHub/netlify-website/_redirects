@@ -1,0 +1,2 @@
+# story links (/?story=...) are answered by the share function so WhatsApp/Facebook see the story's cover image
+/   story=:story   /.netlify/functions/share?story=:story   200!

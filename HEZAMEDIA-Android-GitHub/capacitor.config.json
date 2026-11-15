@@ -1,0 +1,19 @@
+{
+  "appId": "com.hezamedia.news",
+  "appName": "HEZA MEDIA",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#0a2358"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "backgroundColor": "#0a2358",
+      "style": "LIGHT"
+    }
+  }
+}
